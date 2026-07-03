@@ -1,12 +1,10 @@
 # NextLat-Tiny: Compact World Models via Next-Latent Prediction
 
-A faithful, hardware-friendly reproduction of the **NextLat** research paper, demonstrating compact world models and self-speculative decoding on the TinyStories dataset.
-
-```markdown
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) 
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/) 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-```
+
+A faithful, hardware-friendly reproduction of the **NextLat** research paper, demonstrating compact world models and self-speculative decoding on the TinyStories dataset.
 ---
 
 ## Overview
