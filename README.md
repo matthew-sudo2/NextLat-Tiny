@@ -64,7 +64,6 @@ nextlat-tiny/
 ├── run_evaluation.py
 └── train.py
 
-
 ## Configuration Parameters
 
 ### Model Architecture
