@@ -28,6 +28,7 @@ Transformers lack inherent pressure to compress history into compact states. Nex
 
 ## Project Structure
 
+```text
 nextlat-tiny/
 ├── configs/
 │   ├── gpt.yaml
