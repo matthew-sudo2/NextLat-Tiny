@@ -29,44 +29,39 @@ Transformers lack inherent pressure to compress history into compact states. Nex
 ## Project Structure
 
 nextlat-tiny/
+├── configs/
+│   ├── gpt.yaml
+│   ├── nextlat_d1.yaml
+│   ├── nextlat_d2.yaml
+│   └── mtp_d2.yaml
+├── data/
+│   ├── download.py
+│   ├── tokenizer.py
+│   └── prepare.py
+├── nextlat/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── model.py
+│   ├── latent_dynamics.py
+│   ├── losses.py
+│   └── mtp_head.py
+├── eval/
+│   ├── __init__.py
+│   ├── perplexity.py
+│   ├── speculative_decode.py
+│   ├── probe.py
+│   └── benchmark_speedup.py
+├── notebooks/
+│   └── colab_train.ipynb
+├── checkpoints/
+├── results/
+│   └── plots/
 ├── README.md
+├── LICENSE
+├── .gitignore
 ├── quick_start.sh
 ├── run_evaluation.py
-├── train.py
-│
-├── configs/
-│ ├── gpt.yaml # GPT baseline
-│ ├── nextlat_d1.yaml # NextLat d=1
-│ ├── nextlat_d2.yaml # NextLat d=2
-│ └── mtp_d2.yaml # MTP baseline d=2
-│
-├── data/
-│ ├── download.py # Download TinyStories from HF
-│ ├── tokenizer.py # Train custom BPE tokenizer
-│ └── prepare.py # Tokenize and create shards
-│
-├── nextlat/
-│ ├── init.py
-│ ├── config.py # Configuration dataclasses
-│ ├── model.py # GPT backbone with RoPE
-│ ├── latent_dynamics.py # p_psi: 3-layer MLP
-│ ├── losses.py # L_next-token, L_next-h, L_KL
-│ └── mtp_head.py # MTP baseline implementation
-│
-├── eval/
-│ ├── init.py
-│ ├── perplexity.py # Perplexity evaluation
-│ ├── speculative_decode.py # Self-speculative decoding
-│ ├── probe.py # Linear probing for representation quality
-│ └── benchmark_speedup.py # Wall-clock speed benchmarks
-│
-├── notebooks/
-│ └── colab_train.ipynb # Google Colab notebook
-│
-├── checkpoints/ # Saved models (auto-created)
-└── results/ # Evaluation results (auto-created)
-├── plots/
-└── REPORT.txt
+└── train.py
 
 
 ## Configuration Parameters
