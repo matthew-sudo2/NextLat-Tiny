@@ -1,0 +1,24 @@
+# NextLat d=1 with 4096 vocab - for 6GB GPU
+vocab_size: 4096
+hidden_size: 384
+num_layers: 6
+num_heads: 6
+max_seq_len: 256
+dropout: 0.1
+
+batch_size: 8           # Smaller to fit dynamics model
+grad_accum_steps: 8     # Effective batch = 64
+learning_rate: 0.00025
+weight_decay: 0.05
+warmup_steps: 3000
+max_steps: 30000
+eval_interval: 1000
+save_interval: 5000
+log_interval: 50
+
+# NextLat specific
+d: 1
+next_h_lambda: 0.2     # lambda_mse
+kl_lambda: 0.05          # lambda_kl
+latent_mlp_dim: 768     # proj_factor * (2 * hidden_size) ≈ 1.0 * 768
+latent_mlp_layers: 3

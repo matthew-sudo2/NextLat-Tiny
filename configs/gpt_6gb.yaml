@@ -1,0 +1,19 @@
+# GPT High Quality - Target loss < 2.0
+vocab_size: 1000
+hidden_size: 512  # Increased from 384
+num_layers: 8     # Increased from 6
+num_heads: 8      # Increased from 6
+max_seq_len: 256  # Original paper setting
+dropout: 0.1
+
+batch_size: 8
+grad_accum_steps: 4
+learning_rate: 0.0003
+weight_decay: 0.1
+warmup_steps: 2000
+max_steps: 50000
+eval_interval: 1000
+save_interval: 5000
+log_interval: 50
+
+d: 0
