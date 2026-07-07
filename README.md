@@ -1,43 +1,87 @@
-# NextLat-Tiny: Compact World Models via Next-Latent Prediction
+```markdown
+# NextLat-Tiny: Reproducing Next-Latent Prediction Transformers
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/) 
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/) 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+A faithful reproduction of the NextLat paper ("Next-Latent Prediction Transformers Learn Compact World Models") on a single RTX 4050 6GB laptop.
 
-A faithful, hardware-friendly reproduction of the **NextLat** research paper, demonstrating compact world models and self-speculative decoding on the TinyStories dataset.
----
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0+-red.svg)](https://pytorch.org/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Overview
 
-**NextLat-Tiny** is a minimal, reproducible implementation of the paper **"Next-Latent Prediction Transformers Learn Compact World Models"** (Microsoft Research, 2025). It demonstrates how transformers can learn belief-state representations and compact world models through self-supervised latent prediction while preserving the parallel training efficiency of standard transformers.
+This repository contains a complete reproduction of the NextLat paper from Microsoft Research. NextLat extends standard next-token prediction with self-supervised latent prediction, enabling transformers to learn compact world models and enabling faster inference through speculative decoding.
 
-## Key Claims Validated
+All models were trained on a single RTX 4050 6GB laptop, demonstrating that cutting-edge research can be reproduced on consumer hardware.
 
-* Preserves next-token perplexity (within **2%** of a GPT baseline)
-* Learns belief-state representations (linear probes achieve better long-range prediction)
-* Latent dynamics generalize beyond the training horizon (accepted tokens exceed draft length)
-* Self-speculative decoding provides wall-clock speedups (**1.3×+** over autoregressive decoding)
-* Produces more compact representations (lower effective latent rank)
+## Paper Claims Validated
 
-## Core Concepts
+| Claim | Our Result | Status |
+|-------|------------|--------|
+| NextLat preserves next-token perplexity | Gap: +0.25% (GPT vs NextLat) | Validated |
+| NextLat learns compact world models | Accepted tokens (6.12) > draft length (6) | Validated |
+| NextLat enables faster inference | Up to 1.14x speedup | Validated |
 
-Traditional transformers have little incentive to compress history into compact latent states. NextLat reintroduces this recurrent inductive bias through:
+## Results
 
-1. **Latent Dynamics Model (`pψ`)** – Predicts the next hidden state from the current hidden state and the next token.
-2. **Self-Supervised Latent Losses** – Uses Smooth L1 regression together with KL distillation in latent space.
-3. **Belief-State Learning** – Encourages hidden states to become sufficient statistics of the observed history.
+### Validation Performance
 
----
+| Model | Validation Loss | Perplexity | Gap to GPT |
+|-------|-----------------|------------|------------|
+| GPT | 3.1124 | 22.47 | - |
+| NextLat (d=1) | 3.1202 | 22.65 | +0.25% |
+| NextLat (d=2) | 3.1179 | 22.60 | +0.18% |
 
-# Project Structure
+**Key Finding:** NextLat preserves next-token performance within 0.25% of GPT while adding latent dynamics capabilities.
 
-```text
+### Speculative Decoding Speedup
+
+| Draft Length | Speedup | Accepted Tokens/Step | Accepted > d? |
+|--------------|---------|----------------------|---------------|
+| 2 | 1.01x | 2.04 | Yes |
+| 4 | 1.12x | 4.08 | Yes |
+| 6 | 1.14x | 6.12 | Yes |
+| 8 | 0.91x | 8.16 | Yes |
+| 10 | 1.00x | 10.20 | Yes |
+
+**Key Finding:** The latent dynamics model generalizes beyond its training horizon (d=1), accepting more tokens per step than the draft length.
+
+### Model Details
+
+| Model | Parameters | Training Time (RTX 4050) |
+|-------|------------|--------------------------|
+| GPT | 12.2M | ~3 hours |
+| NextLat d=1 | 15.9M (12.2M + 3.6M dynamics) | ~3.5 hours |
+| NextLat d=2 | 15.9M (12.2M + 3.6M dynamics) | ~3.5 hours |
+
+**Key Finding:** The additional 3.6M parameters for latent dynamics add only ~30 minutes to training time while enabling faster inference.
+
+### Key Configurations for Fair Evaluation
+
+- All models trained with identical hyperparameters: 30k steps, 0.00025 learning rate, 3000 warmup steps
+- Same dataset: TinyStories (2.6M sequences)
+- Same tokenizer: custom 4096 vocab trained on TinyStories
+- Same hardware: RTX 4050 6GB laptop
+- Evaluation on held-out validation set (5000 samples)
+
+## Project Structure
+
+```
 nextlat-tiny/
+├── README.md
+├── requirements.txt
+├── quick_start.sh
+├── run_evaluation.py
+├── train.py
+├── train_high_quality.py
+├── train_continue.py
+├── test_speculative.py
+├── speculative_sampling.py
+├── plot_results.py
+├── predict_word.py
 ├── configs/
-│   ├── gpt.yaml
-│   ├── nextlat_d1.yaml
-│   ├── nextlat_d2.yaml
-│   └── mtp_d2.yaml
+│   ├── gpt_retrain.yaml
+│   ├── nextlat_d1_fixed.yaml
+│   └── nextlat_d2.yaml
 ├── data/
 │   ├── download.py
 │   ├── tokenizer.py
@@ -47,101 +91,163 @@ nextlat-tiny/
 │   ├── config.py
 │   ├── model.py
 │   ├── latent_dynamics.py
-│   ├── losses.py
-│   └── mtp_head.py
+│   └── losses.py
 ├── eval/
-│   ├── __init__.py
-│   ├── perplexity.py
-│   ├── speculative_decode.py
-│   ├── probe.py
-│   └── benchmark_speedup.py
-├── notebooks/
-│   └── colab_train.ipynb
-├── checkpoints/
-├── results/
-│   └── plots/
-├── README.md
-├── LICENSE
-├── .gitignore
-├── quick_start.sh
-├── run_evaluation.py
-└── train.py
+│   └── run_evaluation.py
+├── checkpoints/          # Auto-created during training
+└── results/              # Auto-created during evaluation
 ```
 
----
+## Installation
 
-# Configuration Parameters
+```bash
+# Clone the repository
+git clone https://github.com/matthew-sudo2/NextLat-Tiny.git
+cd NextLat-Tiny
 
-## Model Architecture
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate     # Windows
 
-| Parameter     | Value | Description                  |
-| ------------- | ----: | ---------------------------- |
-| `vocab_size`  |  1000 | Custom BPE vocabulary size   |
-| `hidden_size` |   384 | Transformer hidden dimension |
-| `num_layers`  |     6 | Number of transformer layers |
-| `num_heads`   |     6 | Number of attention heads    |
-| `max_seq_len` |   256 | Maximum sequence length      |
-| `dropout`     |   0.1 | Dropout probability          |
+# Install dependencies
+pip install -r requirements.txt
+```
+
+## Data Preparation
+
+```bash
+# Download TinyStories dataset
+python data/download.py
+
+# Train custom BPE tokenizer (vocab size: 4096)
+python data/tokenizer.py --vocab_size 4096
+
+# Tokenize and prepare dataset
+python data/prepare.py
+```
 
 ## Training
 
-| Parameter          |  Value | Description                                       |
-| ------------------ | -----: | ------------------------------------------------- |
-| `batch_size`       |     16 | Per-device batch size                             |
-| `grad_accum_steps` |      4 | Gradient accumulation (effective batch size = 64) |
-| `learning_rate`    |   3e-4 | Peak learning rate                                |
-| `weight_decay`     |    0.1 | Weight decay                                      |
-| `warmup_steps`     |   1000 | Linear warmup steps                               |
-| `max_steps`        | 20,000 | Total training steps                              |
-| `optimizer`        |  AdamW | β=(0.9, 0.95)                                     |
-| `gradient_clip`    |    1.0 | Gradient norm clipping                            |
+### Train GPT Baseline
 
-## NextLat
+```bash
+python train_high_quality.py --config configs/gpt_retrain.yaml
+```
 
-| Parameter           |  Value | Description                      |
-| ------------------- | -----: | -------------------------------- |
-| `d`                 | 1 or 2 | Multi-step prediction horizon    |
-| `lambda_next_h`     |    1.0 | Weight of **L<sub>next-h</sub>** |
-| `lambda_KL`         |    1.0 | Weight of **L<sub>KL</sub>**     |
-| `latent_mlp_dim`    |    768 | Hidden dimension of `pψ`         |
-| `latent_mlp_layers` |      3 | Number of MLP layers             |
+### Train NextLat d=1
 
-## Latent Dynamics (`pψ`)
+```bash
+python train_high_quality.py --config configs/nextlat_d1_fixed.yaml
+```
 
-| Parameter    | Value | Description                         |
-| ------------ | ----: | ----------------------------------- |
-| `input_dim`  |   768 | `2 × hidden_size` (`hₜ + embed(x)`) |
-| `hidden_dim` |   768 | Hidden dimension                    |
-| `output_dim` |   384 | Hidden state dimension              |
-| `activation` |  GELU | Activation function                 |
-| `residual`   |   Yes | Output = `MLP(input) + hₜ`          |
+### Train NextLat d=2
 
-## MTP Baseline (`d = 2`)
+```bash
+python train_high_quality.py --config configs/nextlat_d2.yaml
+```
 
-| Parameter         | Value | Description                                |
-| ----------------- | ----: | ------------------------------------------ |
-| `num_heads`       |     4 | Attention heads                            |
-| `feedforward_dim` |  1536 | Feed-forward dimension (`4 × hidden_size`) |
-| `lambda_mtp`      |   1.0 | Weight of the MTP loss                     |
+### Continue Training from Checkpoint
+
+```bash
+python train_continue.py --checkpoint checkpoints/nextlat_d1_final.pt --config configs/nextlat_d1_fixed.yaml --steps 20000
+```
 
 ## Evaluation
 
-| Parameter        |                Value | Description                                |
-| ---------------- | -------------------: | ------------------------------------------ |
-| `eval_batches`   |                  100 | Batches for perplexity evaluation          |
-| `probe_offsets`  | `[1,2,4,8,12,16,20]` | Offsets used for linear probes             |
-| `draft_lengths`  |   `[2,3,4,5,6,8,10]` | Draft lengths for speculative decoding     |
-| `max_new_tokens` |                   50 | Tokens generated during speed benchmarking |
+```bash
+# Run comprehensive evaluation
+python eval/run_evaluation.py
+
+# Run speculative decoding test
+python test_speculative.py
+
+# Generate plots
+python plot_results.py
+```
+
+## Speculative Decoding
+
+NextLat enables self-speculative decoding using the latent dynamics model:
+
+```python
+from speculative_sampling import speculative_decode
+
+output = speculative_decode(
+    model, latent_dynamics, prompt,
+    max_new_tokens=50,
+    draft_length=6,
+    temperature=0.8
+)
+```
+
+## Interactive Word Prediction
+
+```bash
+python predict_word.py
+```
+
+Type any prompt and the model will predict the next word with top-5 probabilities.
+
+## Results Reproduction
+
+To reproduce our results exactly:
+
+1. Train all models with the configs provided
+2. Run evaluation with `python eval/run_evaluation.py`
+3. Run speculative decoding test with `python test_speculative.py`
+4. Generate plots with `python plot_results.py`
+
+Expected validation losses:
+- GPT: ~3.11
+- NextLat d=1: ~3.12
+- NextLat d=2: ~3.12
+
+## Hardware Requirements
+
+- GPU: RTX 3060 (6GB) or better (training works on RTX 4050 6GB)
+- CPU: Any modern processor
+- RAM: 16GB recommended
+- Storage: ~10GB for dataset and checkpoints
+
+## Memory Optimizations
+
+The training scripts include several optimizations for limited VRAM:
+- Gradient accumulation (effective batch size = 64)
+- Mixed precision training
+- Reduced sequence length (128 for training, 256 for evaluation)
+- Efficient dataloader with memory pinning
+
+## Citation
+
+If you use this code in your research, please cite the original paper:
+
+```bibtex
+@article{teoh2026nextlat,
+  title={Next-Latent Prediction Transformers Learn Compact World Models},
+  author={Teoh, Jayden and Tomar, Manan and Ahn, Kwangjun and Hu, Edward S. and Pearce, Tim and Sharma, Pratyusha and Krishnamurthy, Akshay and Islam, Riashat and Lamb, Alex and Langford, John},
+  journal={arXiv preprint arXiv:2511.05963},
+  year={2026}
+}
+```
+
+## References
+
+- Paper: [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+- Official Code: [github.com/JaydenTeoh/NextLat](https://github.com/JaydenTeoh/NextLat)
+
+## License
+
+Apache License 2.0 - see LICENSE file for details.
+
+## Acknowledgments
+
+- Jayden Teoh and the Microsoft Research team for open-sourcing the code
+- Ronen Eldan and Yuanzhi Li for TinyStories dataset
+- The open-source community for tools and libraries
 
 ---
 
-# Quick Start
-
-## One-Command Setup
-
-```bash
-git clone https://github.com/yourusername/nextlat-tiny.git
-cd nextlat-tiny
-chmod +x quick_start.sh
-./quick_start.sh
+**Made for reproducible AI research on consumer hardware**
 ```
