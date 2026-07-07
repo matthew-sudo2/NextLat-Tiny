@@ -104,14 +104,6 @@ nextlat-tiny/
 ├── checkpoints/          # Auto-created during training
 └── results/              # Auto-created during evaluation
 
-Here is the corrected markdown for that specific section. The issue in the screenshot is that all the commands were pasted as plain text without Markdown code blocks (````bash` or ````python`), and the `git clone` command had a broken Markdown link inside it.
-
-Here is the properly formatted, copy-paste-ready version starting from the end of your folder structure:
-
-```markdown
-    ├── checkpoints/          # Auto-created during training
-    └── results/              # Auto-created during evaluation
-
 ```
 
 ## Installation
