@@ -104,8 +104,21 @@ nextlat-tiny/
 ├── checkpoints/          # Auto-created during training
 └── results/              # Auto-created during evaluation
 
+Here is the corrected markdown for that specific section. The issue in the screenshot is that all the commands were pasted as plain text without Markdown code blocks (````bash` or ````python`), and the `git clone` command had a broken Markdown link inside it.
+
+Here is the properly formatted, copy-paste-ready version starting from the end of your folder structure:
+
+```markdown
+    ├── checkpoints/          # Auto-created during training
+    └── results/              # Auto-created during evaluation
+
+```
+
+## Installation
+
+```bash
 # Clone the repository
-git clone [https://github.com/matthew-sudo2/NextLat-Tiny.git](https://github.com/matthew-sudo2/NextLat-Tiny.git)
+git clone https://github.com/matthew-sudo2/NextLat-Tiny.git
 cd NextLat-Tiny
 
 # Create virtual environment
@@ -117,6 +130,11 @@ venv\Scripts\activate     # Windows
 # Install dependencies
 pip install -r requirements.txt
 
+```
+
+## Data Preparation
+
+```bash
 # Download TinyStories dataset
 python data/download.py
 
@@ -126,12 +144,25 @@ python data/tokenizer.py --vocab_size 4096
 # Tokenize and prepare dataset
 python data/prepare.py
 
+```
+
+## Training
+
+```bash
+# Train GPT Baseline
 python train_high_quality.py --config configs/gpt_retrain.yaml
 
+# Train NextLat d=1
 python train_high_quality.py --config configs/nextlat_d1_fixed.yaml
 
+# Continue Training
 python train_continue.py --checkpoint checkpoints/nextlat_d1_final.pt --config configs/nextlat_d1_fixed.yaml --steps 20000
 
+```
+
+## Evaluation
+
+```bash
 # Run comprehensive evaluation
 python eval/run_evaluation.py
 
@@ -141,6 +172,11 @@ python test_speculative.py
 # Generate plots
 python plot_results.py
 
+```
+
+## Speculative Decoding
+
+```python
 from speculative_sampling import speculative_decode
 
 output = speculative_decode(
@@ -152,48 +188,48 @@ output = speculative_decode(
     temperature=0.8
 )
 
-Results Reproduction
+```
+---
+## Results Reproduction
+---
 To reproduce our results exactly:
 
-Train all models with the configs provided.
+1. Train all models with the configs provided.
+2. Run evaluation with `python eval/run_evaluation.py`.
+3. Run speculative decoding test with `python test_speculative.py`.
+4. Generate plots with `python plot_results.py`.
 
-Run evaluation with python eval/run_evaluation.py.
+**Expected validation losses:**
+* **GPT:** ~3.11
+* **NextLat d=1:** ~3.12
+* **NextLat d=2:** ~3.12
 
-Run speculative decoding test with python test_speculative.py.
+---
 
-Generate plots with python plot_results.py.
+## Hardware Requirements
 
-Expected validation losses:
+* **GPU:** RTX 3060 (6GB) or better (training works on RTX 4050 6GB).
+* **CPU:** Any modern processor.
+* **RAM:** 16GB recommended.
+* **Storage:** ~10GB for dataset and checkpoints.
 
-GPT: ~3.11
+---
 
-NextLat d=1: ~3.12
+## Memory Optimizations
 
-NextLat d=2: ~3.12
-
-Hardware Requirements
-GPU: RTX 3060 (6GB) or better (training works on RTX 4050 6GB).
-
-CPU: Any modern processor.
-
-RAM: 16GB recommended.
-
-Storage: ~10GB for dataset and checkpoints.
-
-Memory Optimizations
 The training scripts include several optimizations for limited VRAM:
+* Gradient accumulation (effective batch size = 64).
+* Mixed precision training.
+* Reduced sequence length (128 for training, 256 for evaluation).
+* Efficient dataloader with memory pinning.
 
-Gradient accumulation (effective batch size = 64).
+---
 
-Mixed precision training.
+## Citation
 
-Reduced sequence length (128 for training, 256 for evaluation).
-
-Efficient dataloader with memory pinning.
-
-Citation
 If you use this code in your research, please cite the original paper:
 
+```bibtex
 @article{teoh2026nextlat,
   title={Next-Latent Prediction Transformers Learn Compact World Models},
   author={Teoh, Jayden and Tomar, Manan and Ahn, Kwangjun and Hu, Edward S. and Pearce, Tim and Sharma, Pratyusha and Krishnamurthy, Akshay and Islam, Riashat and Lamb, Alex and Langford, John},
@@ -201,17 +237,23 @@ If you use this code in your research, please cite the original paper:
   year={2026}
 }
 
-References
-Paper: Next-Latent Prediction Transformers Learn Compact World Models
+```
 
-Official Code: github.com/JaydenTeoh/NextLat
+## References
 
-License
+* **Paper:** [Next-Latent Prediction Transformers Learn Compact World Models](https://arxiv.org/abs/2511.05963)
+* **Official Code:** [github.com/JaydenTeoh/NextLat](https://github.com/JaydenTeoh/NextLat)
+
+## License
+
 Apache License 2.0 - see LICENSE file for details.
 
-Acknowledgments
-Jayden Teoh and the Microsoft Research team for open-sourcing the code.
+## Acknowledgments
 
-Ronen Eldan and Yuanzhi Li for TinyStories dataset.
+* Jayden Teoh and the Microsoft Research team for open-sourcing the code.
+* Ronen Eldan and Yuanzhi Li for TinyStories dataset.
+* The open-source community for tools and libraries.
 
+```
+```
 The open-source community for tools and libraries.
