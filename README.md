@@ -254,6 +254,4 @@ Apache License 2.0 - see LICENSE file for details.
 * Ronen Eldan and Yuanzhi Li for TinyStories dataset.
 * The open-source community for tools and libraries.
 
-```
-```
 The open-source community for tools and libraries.
